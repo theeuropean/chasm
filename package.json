@@ -1,0 +1,31 @@
+{
+  "name": "chasm",
+  "version": "0.0.0",
+  "description": "",
+  "main": "dist/chasm.js",
+  "scripts": {
+    "test": "gulp"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/theeuropean/chasm"
+  },
+  "author": "DEBRIS APRON",
+  "license": "BSD-2-Clause",
+  "bugs": {
+    "url": "https://github.com/theeuropean/chasm/issues"
+  },
+  "devDependencies": {
+    "mocha": "~1",
+    "chai": "~1",
+    "gulp": "~3",
+    "gulp-mocha": "~2",
+    "gulp-traceur": "~0.14",
+    "sinon": "~1",
+    "sinon-chai": "~2"
+  },
+  "dependencies": {
+    "lodash": "~3",
+    "eventemitter2": "~0.4"    
+  }
+}
