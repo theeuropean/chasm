@@ -12,14 +12,14 @@ function createSong() {
   let _lastPart;
   let _lastPhrase;
   let _parts = [];
-  let _sections = [];
+  // let _sections = [];
   let _score = {
-    parts: _parts,
-    get sections() {
-      return _sections.length ?
-        _sections : 
-        [getDefaultSection()];
-    }
+    parts: _parts
+    // get sections() {
+    //   return _sections.length ?
+    //     _sections : 
+    //     [getDefaultSection()];
+    // }
   };
 
   return {
@@ -65,13 +65,14 @@ function createSong() {
 
   // Private
 
-  function getDefaultSection() {
-    return {
-      name: 'section0',
-      strains: _parts.map(part => { 
-        return { part, phrases: [part.phrases[0]] };
-      })
-    };
-  }
+  // Getting ahead of myself
+  // function getDefaultSection() {
+  //   return {
+  //     name: 'section0',
+  //     strains: _parts.map(part => { 
+  //       return { part, phrases: [part.phrases[0]] };
+  //     })
+  //   };
+  // }
 
 }

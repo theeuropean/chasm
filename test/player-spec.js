@@ -19,12 +19,28 @@ describe('player', function () {
 
   it("can play a simple score", function () {
     var n1 = { type: 'note', data: { pitch: 1 } };
+    // var score = {
+    //   sections: [{ strains: [{ phrases: [{ occs: [
+    //     // x--- ---- x--- ----
+    //     { pos: 0,   ev: n1 },
+    //     { pos: 1/2, ev: n1 }
+    //   ] }], part: { name: 'foo' } }] }]
+    // };
     var score = {
-      sections: [{ strains: [{ phrases: [{ occs: [
-        // x--- ---- x--- ----
-        { pos: 0,   ev: n1 },
-        { pos: 1/2, ev: n1 }
-      ] }], part: { name: 'foo' } }] }]
+      parts: [
+        {
+          name: 'foo',
+          phrases: [
+            {
+              occs: [
+                // x--- ---- x--- ----
+                { pos: 0,   ev: n1 },
+                { pos: 1/2, ev: n1 }
+              ]
+            }
+          ]
+        }
+      ]
     };
     var p = createPlayer(score);
     var spy = sinon.spy();

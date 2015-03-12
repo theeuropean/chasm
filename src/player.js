@@ -16,13 +16,13 @@ function createPlayer(score) {
 
   function tick() {
     let self = this;
-    score.sections[0].strains.forEach(strain => {
-      let phrase = strain.phrases[0];
+    score.parts.forEach(part => {
+      let phrase = part.phrases[0];
       let loopPosInTicks = _positionInTicks % getTicksFromTimeObj({ bars: 1 });
       let events = getEventsFromPhraseAtLoopPos(phrase, loopPosInTicks);
       if(events && events.length) {
         events.forEach(ev => {
-          self.emit(`${ strain.part.name }.${ ev.type }`, ev);
+          self.emit(`${ part.name }.${ ev.type }`, ev);
         });
       }
     });

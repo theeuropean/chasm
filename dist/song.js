@@ -6,13 +6,7 @@ function createSong() {
   var _lastPart;
   var _lastPhrase;
   var _parts = [];
-  var _sections = [];
-  var _score = {
-    parts: _parts,
-    get sections() {
-      return _sections.length ? _sections : [getDefaultSection()];
-    }
-  };
+  var _score = {parts: _parts};
   return {
     part: part,
     phrase: phrase,
@@ -57,16 +51,5 @@ function createSong() {
       }
     }));
     return this;
-  }
-  function getDefaultSection() {
-    return {
-      name: 'section0',
-      strains: _parts.map((function(part) {
-        return {
-          part: part,
-          phrases: [part.phrases[0]]
-        };
-      }))
-    };
   }
 }
