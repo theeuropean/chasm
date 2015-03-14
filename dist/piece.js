@@ -1,18 +1,17 @@
 "use strict";
 "use strict";
 var sortBy = require('lodash').sortBy;
-module.exports = {createSong: createSong};
-function createSong() {
+module.exports = {createPiece: createPiece};
+function createPiece() {
   var _lastPart;
   var _lastPhrase;
   var _parts = [];
-  var _score = {parts: _parts};
   return {
     part: part,
     phrase: phrase,
     ev: ev,
     gr: gr,
-    $score: _score
+    $parts: _parts
   };
   function part() {
     var name = arguments[0] !== (void 0) ? arguments[0] : ("part" + _parts.length);

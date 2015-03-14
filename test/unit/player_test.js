@@ -1,12 +1,9 @@
 "use strict";
 
-var chai = require('chai');
+var h = require('../test_helper');
 var sinon = require('sinon');
-var sinonChai = require('sinon-chai');
 var _ = require('lodash');
-chai.should();
-chai.use(sinonChai);
-var player = require('../dist/player.js');
+var player = require('../../dist/player');
 var createPlayer = player.createPlayer;
 
 describe('player', function () {
@@ -17,7 +14,7 @@ describe('player', function () {
     createPlayer().should.exist;
   });
 
-  it("can play a simple score", function () {
+  it("can play a simple piece", function () {
     var n1 = { type: 'note', data: { pitch: 1 } };
     // var score = {
     //   sections: [{ strains: [{ phrases: [{ occs: [
@@ -26,8 +23,8 @@ describe('player', function () {
     //     { pos: 1/2, ev: n1 }
     //   ] }], part: { name: 'foo' } }] }]
     // };
-    var score = {
-      parts: [
+    var piece = {
+      $parts: [
         {
           name: 'foo',
           phrases: [
@@ -42,7 +39,7 @@ describe('player', function () {
         }
       ]
     };
-    var p = createPlayer(score);
+    var p = createPlayer(piece);
     var spy = sinon.spy();
     p.on('foo.note', spy);
     

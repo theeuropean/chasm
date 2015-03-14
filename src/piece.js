@@ -5,29 +5,29 @@ const {
   sortBy
 } = require('lodash');
 
-module.exports = { createSong };
+module.exports = { createPiece };
 
-function createSong() {
+function createPiece() {
 
   let _lastPart;
   let _lastPhrase;
   let _parts = [];
   // let _sections = [];
-  let _score = {
-    parts: _parts
-    // get sections() {
-    //   return _sections.length ?
-    //     _sections : 
-    //     [getDefaultSection()];
-    // }
-  };
+  // let _score = {
+  //   parts: _parts
+  //   // get sections() {
+  //   //   return _sections.length ?
+  //   //     _sections : 
+  //   //     [getDefaultSection()];
+  //   // }
+  // };
 
   return {
     part, 
     phrase, 
     ev, 
     gr, 
-    $score: _score
+    $parts: _parts
   };
 
   // Public

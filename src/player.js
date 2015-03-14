@@ -8,7 +8,7 @@ let EventEmitter = require('eventemitter2').EventEmitter2;
 
 let _resolution = 24; // ppqn
 
-function createPlayer(score) {
+function createPlayer(piece) {
   let _positionInTicks = 0;
   const TICK_LENGTH_IN_NOTES = 1 / (_resolution * 4);
 
@@ -16,7 +16,7 @@ function createPlayer(score) {
 
   function tick() {
     let self = this;
-    score.parts.forEach(part => {
+    piece.$parts.forEach(part => {
       let phrase = part.phrases[0];
       let loopPosInTicks = _positionInTicks % getTicksFromTimeObj({ bars: 1 });
       let events = getEventsFromPhraseAtLoopPos(phrase, loopPosInTicks);

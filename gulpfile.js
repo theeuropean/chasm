@@ -3,7 +3,7 @@ var mocha = require('gulp-mocha');
 var traceur = require('gulp-traceur');
 var paths = {
   src: 'src/*.js',
-  test: 'test/*.js',
+  unitTest: 'test/unit/*_test.js',
   dist: 'dist'
 };
 
@@ -14,15 +14,15 @@ gulp.task('compile', function () {
     .pipe(gulp.dest(paths.dist));
 });
 
-gulp.task('test-src', ['compile'], function () {
+gulp.task('ut', ['compile'], function () {
   return gulp
-    .src(paths.test, { read: false })
+    .src(paths.unitTest, { read: false })
     .pipe(mocha({ reporter: 'spec' }));
 });
 
 gulp.task('default', function () {
   gulp
-    .watch(paths.src, ['test-src']);
+    .watch(paths.src, ['ut']);
   gulp
-    .watch(paths.test, ['test-src']);
+    .watch(paths.unitTest, ['ut']);
 });

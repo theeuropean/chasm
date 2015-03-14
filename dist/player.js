@@ -5,12 +5,12 @@ var $__0 = require('lodash'),
     where = $__0.where;
 var EventEmitter = require('eventemitter2').EventEmitter2;
 var _resolution = 24;
-function createPlayer(score) {
+function createPlayer(piece) {
   var _positionInTicks = 0;
   var TICK_LENGTH_IN_NOTES = 1 / (_resolution * 4);
   function tick() {
     var self = this;
-    score.parts.forEach((function(part) {
+    piece.$parts.forEach((function(part) {
       var phrase = part.phrases[0];
       var loopPosInTicks = _positionInTicks % getTicksFromTimeObj({bars: 1});
       var events = getEventsFromPhraseAtLoopPos(phrase, loopPosInTicks);
