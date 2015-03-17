@@ -1,11 +1,9 @@
-"use strict";
+module.exports = createPiece;
 
 // ES6 object destructuring FTW
 const {
   sortBy
 } = require('lodash');
-
-module.exports = { createPiece };
 
 function createPiece() {
 
@@ -26,7 +24,8 @@ function createPiece() {
     part, 
     phrase, 
     ev, 
-    gr, 
+    gr,
+    toOSC,
     $parts: _parts
   };
 
@@ -60,6 +59,11 @@ function createPiece() {
           ev(i * (1/16), 'note', { pitch: nn });
         }
       });
+    return this;
+  }
+
+  function toOSC(address, ...argNames) {
+    _lastPart.dest = { address, argNames };
     return this;
   }
 

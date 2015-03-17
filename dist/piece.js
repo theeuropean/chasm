@@ -1,7 +1,6 @@
 "use strict";
-"use strict";
+module.exports = createPiece;
 var sortBy = require('lodash').sortBy;
-module.exports = {createPiece: createPiece};
 function createPiece() {
   var _lastPart;
   var _lastPhrase;
@@ -11,6 +10,7 @@ function createPiece() {
     phrase: phrase,
     ev: ev,
     gr: gr,
+    toOSC: toOSC,
     $parts: _parts
   };
   function part() {
@@ -49,6 +49,16 @@ function createPiece() {
         ev(i * (1 / 16), 'note', {pitch: nn});
       }
     }));
+    return this;
+  }
+  function toOSC(address) {
+    for (var argNames = [],
+        $__0 = 1; $__0 < arguments.length; $__0++)
+      argNames[$__0 - 1] = arguments[$__0];
+    _lastPart.dest = {
+      address: address,
+      argNames: argNames
+    };
     return this;
   }
 }

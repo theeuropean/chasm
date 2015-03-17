@@ -1,20 +1,18 @@
-'use strict';
+module.exports = createSequencer;
 
-let {
-  create,
-  where
-} = require('lodash');
 let EventEmitter = require('eventemitter2').EventEmitter2;
 
-let _resolution = 24; // ppqn
-
-function createPlayer(piece) {
+function createSequencer(piece, { ppqn = 24 } = {}) {
+  
   let _positionInTicks = 0;
-  const TICK_LENGTH_IN_NOTES = 1 / (_resolution * 4);
+  const TICK_LENGTH_IN_NOTES = 1 / (ppqn * 4);
+  const emitter = new EventEmitter({
+    wildcard: true
+  });
 
   // Public
 
-  function tick() {
+  function advance() {
     let self = this;
     piece.$parts.forEach(part => {
       let phrase = part.phrases[0];
@@ -22,7 +20,7 @@ function createPlayer(piece) {
       let events = getEventsFromPhraseAtLoopPos(phrase, loopPosInTicks);
       if(events && events.length) {
         events.forEach(ev => {
-          self.emit(`${ part.name }.${ ev.type }`, ev);
+          emitter.emit(`${ part.name }.${ ev.type }`, ev);
         });
       }
     });
@@ -30,11 +28,15 @@ function createPlayer(piece) {
     return this;
   }
 
+  function on(...args) {
+    return emitter.on(...args);
+  }
+
   // Private
 
   function getTicksFromTimeObj(obj) {
     let totalBeats = ((obj.bars || 0) * 4) + (obj.beats || 0);
-    return totalBeats * _resolution;
+    return totalBeats * ppqn;
   }
 
   function getEventsFromPhraseAtLoopPos(phrase, loopPosInTicks) {
@@ -45,13 +47,6 @@ function createPlayer(piece) {
       .map(occ => occ.ev);
   }
 
-  return create(EventEmitter.prototype, {
-    tick
-  });
+  return { advance, on };
 
 }
-
-module.exports = {
-  createPlayer,
-  set resolution(value) { _resolution = value; }
-};

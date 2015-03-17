@@ -4,6 +4,7 @@ var traceur = require('gulp-traceur');
 var paths = {
   src: 'src/*.js',
   unitTest: 'test/unit/*_test.js',
+  systemTest: 'test/system/*_test.js',
   dist: 'dist'
 };
 
@@ -17,6 +18,12 @@ gulp.task('compile', function () {
 gulp.task('ut', ['compile'], function () {
   return gulp
     .src(paths.unitTest, { read: false })
+    .pipe(mocha({ reporter: 'spec' }));
+});
+
+gulp.task('st', ['compile'], function () {
+  return gulp
+    .src(paths.systemTest, { read: false })
     .pipe(mocha({ reporter: 'spec' }));
 });
 

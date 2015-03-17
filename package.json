@@ -28,6 +28,7 @@
   "dependencies": {
     "eventemitter2": "~0.4",
     "lodash": "~3",
-    "nanotimer": "^0.3.10"
+    "nanotimer": "^0.3.10",
+    "osc-min": "^0.2.0"
   }
 }

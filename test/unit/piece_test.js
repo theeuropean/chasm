@@ -1,34 +1,34 @@
 "use strict";
 
 var h = require('../test_helper');
-var createPiece = require('../../dist/piece').createPiece;
+var piece = require('../../dist/piece');
 
 describe('piece', function () {
 
   it("exposes its parts (fnar fnar)", function () {
-    createPiece().$parts.should.exist;
+    piece().$parts.should.exist;
   });
 
   it("can add a part with default or specified name", function () {
-    createPiece().part().$parts[0]
+    piece().part().$parts[0]
       .should.exist;
-    createPiece().part().$parts[0].name
+    piece().part().$parts[0].name
       .should.equal('part0');
-    createPiece().part('foo').$parts[0].name
+    piece().part('foo').$parts[0].name
       .should.equal('foo');
   });
 
   it("can add a phrase to a part with default or specified name", function () {
-    createPiece().part().phrase().$parts[0].phrases[0]
+    piece().part().phrase().$parts[0].phrases[0]
       .should.exist;
-    createPiece().part().phrase().$parts[0].phrases[0].name
+    piece().part().phrase().$parts[0].phrases[0].name
       .should.equal('phrase0');
-    createPiece().part().phrase('foo').$parts[0].phrases[0].name
+    piece().part().phrase('foo').$parts[0].phrases[0].name
       .should.equal('foo');
   });
 
   it('can add an event occurrence to a phrase', function () {
-    createPiece()
+    piece()
       .part().phrase()
         .ev(0, 'note', { pitch: 1 })
       .$parts[0].phrases[0].occs
@@ -38,7 +38,7 @@ describe('piece', function () {
   });
 
   it('should order phrase event occurrences by position', function () {
-    createPiece()
+    piece()
       .part().phrase()
         .ev(1/2, 'note', { pitch: 2 })
         .ev(0,   'note', { pitch: 1 })
@@ -51,7 +51,7 @@ describe('piece', function () {
 
   it('should allow creation of a phrase from a grid pattern', function () {
     var nn1 = { type: 'note', data: { pitch: 1 } };
-    createPiece().part().phrase()
+    piece().part().phrase()
       .gr('x--- x--- x--- x---', 1)
       .$parts[0].phrases[0].occs
       .should.deep.equal([
@@ -62,9 +62,16 @@ describe('piece', function () {
       ]);
   });
 
+  it('should allow setting an OSC destination', function () {
+    var dest = piece().part().toOSC('/foo', 'bar', 'baz')
+      .$parts[0].dest;
+    dest.address.should.equal('/foo');
+    dest.argNames.should.deep.equal(['bar', 'baz']);
+  });
+
   // Getting ahead of myself...
   // it("should expose a default section when none has been specified", function () {
-  //   var score = createPiece().part().phrase().$score;
+  //   var score = piece().part().phrase().$score;
   //   score.sections[0].strains[0]
   //     .should.deep.equal({
   //       part: score.parts[0],

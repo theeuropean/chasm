@@ -3,15 +3,12 @@
 var h = require('../test_helper');
 var sinon = require('sinon');
 var _ = require('lodash');
-var player = require('../../dist/player');
-var createPlayer = player.createPlayer;
+var sequencer = require('../../dist/sequencer');
 
-describe('player', function () {
+describe('sequencer', function () {
 
-  player.resolution = 4; // set default resolution to 16ths
-
-  it("can create a player", function () {
-    createPlayer().should.exist;
+  it("can create a sequencer", function () {
+    sequencer().should.exist;
   });
 
   it("can play a simple piece", function () {
@@ -39,21 +36,21 @@ describe('player', function () {
         }
       ]
     };
-    var p = createPlayer(piece);
+    var s = sequencer(piece, { ppqn: 4 });
     var spy = sinon.spy();
-    p.on('foo.note', spy);
+    s.on('foo.note', spy);
     
-    p.tick(); // 0 of 16 = note
+    s.advance(); // 0 of 16 = note
     spy.should.have.callCount(1);
-    p.tick(); // 1 of 16 = no note
+    s.advance(); // 1 of 16 = no note
     spy.should.have.callCount(1);
-    _.times(6, p.tick); // 2-7 of 16 = no note
+    _.times(6, s.advance); // 2-7 of 16 = no note
     spy.should.have.callCount(1);
-    p.tick(); // 8 of 16 = note
+    s.advance(); // 8 of 16 = note
     spy.should.have.callCount(2);
-    _.times(7, p.tick); // 9-15 of 16 = no note
+    _.times(7, s.advance); // 9-15 of 16 = no note
     spy.should.have.callCount(2);
-    p.tick(); // 16 of 16 = 0 of 16 = note
+    s.advance(); // 16 of 16 = 0 of 16 = note
     spy.should.have.callCount(3);
     spy.should.always.have.been.calledWith(n1);
   });
