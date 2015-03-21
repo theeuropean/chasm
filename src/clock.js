@@ -53,6 +53,7 @@ function createClock({ ppqn = 24, bpm = 120 } = {}) {
   let self = create(EventEmitter.prototype, {
     run,
     stop,
+    get running() { return running; },
     get bpm() { return bpm; },
     get ppqn() { return ppqn; }
   });

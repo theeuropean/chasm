@@ -1,45 +1,44 @@
 "use strict";
-'use strict';
-var $__0 = require('lodash'),
-    create = $__0.create,
-    where = $__0.where;
-var EventEmitter = require('eventemitter2').EventEmitter2;
-var _resolution = 24;
-function createPlayer(piece) {
-  var _positionInTicks = 0;
-  var TICK_LENGTH_IN_NOTES = 1 / (_resolution * 4);
-  function tick() {
-    var self = this;
-    piece.$parts.forEach((function(part) {
-      var phrase = part.phrases[0];
-      var loopPosInTicks = _positionInTicks % getTicksFromTimeObj({bars: 1});
-      var events = getEventsFromPhraseAtLoopPos(phrase, loopPosInTicks);
-      if (events && events.length) {
-        events.forEach((function(ev) {
-          self.emit((part.name + "." + ev.type), ev);
-        }));
-      }
+module.exports = player;
+var clock = require('./clock');
+var sequencer = require('./sequencer');
+var osc = require('./osc');
+function player(piece, options) {
+  var clk = clock(options);
+  var seq = sequencer(piece, options);
+  clk.on('pulse', seq.advance);
+  seq.on('*.*', function(data) {
+    var topic = this.event;
+    sendOSC(topic, data);
+  });
+  function play() {
+    if (clk.running)
+      return;
+    clk.run();
+  }
+  function stop() {
+    if (!clk.running)
+      return;
+    clk.stop();
+  }
+  function sendOSC(topic, ev) {
+    var address = ("/" + topic.split('.').join('/'));
+    var partName = topic.split('.')[0];
+    var argNames = piece.$parts.find((function(p) {
+      return p.name === partName;
+    })).dest.argNames;
+    var args = argNames.map((function(an) {
+      return ev.data[an];
     }));
-    _positionInTicks++;
-    return this;
+    osc.send({
+      address: address,
+      args: args,
+      udpAddress: 'localhost',
+      port: 24276
+    });
   }
-  function getTicksFromTimeObj(obj) {
-    var totalBeats = ((obj.bars || 0) * 4) + (obj.beats || 0);
-    return totalBeats * _resolution;
-  }
-  function getEventsFromPhraseAtLoopPos(phrase, loopPosInTicks) {
-    var loopPosInNotes = loopPosInTicks * TICK_LENGTH_IN_NOTES;
-    return phrase.occs.filter((function(occ) {
-      return occ.pos === loopPosInNotes;
-    })).map((function(occ) {
-      return occ.ev;
-    }));
-  }
-  return create(EventEmitter.prototype, {tick: tick});
+  return {
+    play: play,
+    stop: stop
+  };
 }
-module.exports = {
-  createPlayer: createPlayer,
-  set resolution(value) {
-    _resolution = value;
-  }
-};

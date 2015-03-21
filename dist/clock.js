@@ -32,6 +32,9 @@ function createClock() {
   var self = create(EventEmitter.prototype, {
     run: run,
     stop: stop,
+    get running() {
+      return running;
+    },
     get bpm() {
       return bpm;
     },

@@ -4,57 +4,30 @@ module.exports = {
   stop
 };
 
-const _ = require('lodash');
 const createPiece = require('./piece');
-const clock = require('./clock');
-const sequencer = require('./sequencer');
-const osc = require('./osc');
+const player = require('./player');
 
 let pieces = new Map();
-let currentClock;
+let currentPlayer;
 
 function piece(name) {
   return pieces.get(name) || addPiece(name);
 }
 
 function play(name, options) {
-  if(currentClock) {
-    currentClock.stop();
+  if(currentPlayer) {
+    stop();
   }
   let p = pieces.get(name);
-  let c = clock({}, options);
-  let s = sequencer(p, options);
-  c.on('pulse', s.advance);
-  s.on('*.*', function (data) {
-    let topic = this.event;
-    sendOSC(p, topic, data);
-  });
-  c.run();
-  currentClock = c;
+  currentPlayer = player(p, options);
+  currentPlayer.play();
 }
 
 function stop() {
-  if(currentClock) {
-    currentClock.stop();
-    currentClock = null;
+  if(currentPlayer) {
+    currentPlayer.stop();
+    currentPlayer = null;
   }  
-}
-
-function sendOSC(_piece, topic, ev) {
-  let partName = topic.split('.')[0];
-  let address = `/${ partName }/${ ev.type }`;
-  let argNames = _piece
-    .$parts
-    .find(p => p.name === partName)
-    .dest
-    .argNames;
-  let args = argNames.map(an => ev.data[an]);
-  osc.send({
-    address: address,
-    args: args,
-    udpAddress: 'localhost',
-    port: 24276
-  });
 }
 
 function addPiece(name) {
