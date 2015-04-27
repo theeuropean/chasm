@@ -1,37 +1,51 @@
-module.exports = {
-  piece,
-  play,
-  stop
-};
+module.exports = { loadChasmFiles, piece, play, stop }
 
-const createPiece = require('./piece');
-const player = require('./player');
+const { isString, isObject } = require('lodash')
+const glob = require('glob')
+const Piece = require('./piece')
+const player = require('./player')
 
-let pieces = new Map();
-let currentPlayer;
+let pieces = new Map()
+let currentPlayer
+let currentChasmFile
 
-function piece(name) {
-  return pieces.get(name) || addPiece(name);
+function loadChasmFiles(cwd) {
+  let files = glob.sync('*.chasm.js')
+  for(let file of files) {
+    let path = `${ cwd }/${ file }`
+    console.log(`loading ${ path } ...`)
+    currentChasmFile = file.split('.chasm.js')[0]
+    require(path)
+    currentChasmFile = null
+  }
 }
 
-function play(name, options) {
+function piece(name = currentChasmFile || `piece${ pieces.size }`) {
+  console.log(`adding piece ${ name } ...`)
+  return pieces.get(name) || addPiece(name)
+}
+
+function play({ name, options } = {}) {
+  name = name || Array.from(pieces.keys())[0]
+  options = options || {}
+  console.log(`playing piece ${ name } ...`)
   if(currentPlayer) {
-    stop();
+    stop()
   }
-  let p = pieces.get(name);
-  currentPlayer = player(p, options);
-  currentPlayer.play();
+  let script = pieces.get(name).script
+  currentPlayer = player(script, options)
+  currentPlayer.play()
 }
 
 function stop() {
   if(currentPlayer) {
-    currentPlayer.stop();
-    currentPlayer = null;
-  }  
+    currentPlayer.stop()
+    currentPlayer = null
+  }
 }
 
 function addPiece(name) {
-  let p = createPiece();
-  pieces.set(name, p);
-  return p;
+  let p = Piece(name)
+  pieces.set(name, p)
+  return p
 }

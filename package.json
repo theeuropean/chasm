@@ -2,9 +2,21 @@
   "name": "chasm",
   "version": "0.0.0",
   "description": "",
-  "main": "dist/chasm.js",
+  "main": "compiled/src/chasm.js",
+  "preferGlobal": "true",
+  "bin": { "chasm": "bin/chasm.js" },
+  "config": {
+    "MOCHA_OPTS": "--ui bdd"
+  },
   "scripts": {
-    "test": "gulp"
+    "pretest": "npm run compile",
+    "test": "mocha compiled/test/unit/*_test.js compiled/test/integration/*_test.js $npm_package_config_MOCHA_OPTS",
+    "pretest:system": "npm run compile",
+    "test:system": "mocha compiled/test/system/*_test.js $npm_package_config_MOCHA_OPTS",
+    "precompile": "rm -r compiled; mkdir -p compiled/bin",
+    "compile": "babel src --out-dir compiled/src && babel test --out-dir compiled/test && babel bin/chasm.js --out-file compiled/bin/chasm.js",
+    "postcompile": "chmod +x compiled/bin/chasm.js",
+    "watch": "onchange test src bin package.json -- npm test"
   },
   "repository": {
     "type": "git",
@@ -16,19 +28,22 @@
     "url": "https://github.com/theeuropean/chasm/issues"
   },
   "devDependencies": {
-    "chai": "~1",
-    "gulp": "~3",
-    "gulp-mocha": "~2",
-    "gulp-traceur": "~0.14",
-    "mocha": "~1",
-    "proxyquire": "^1.4.0",
-    "sinon": "~1",
-    "sinon-chai": "~2"
+    "chai": "latest",
+    "mocha": "latest",
+    "onchange": "^1.0.0",
+    "proxyquire": "latest",
+    "sinon": "latest",
+    "sinon-chai": "latest"
   },
   "dependencies": {
-    "eventemitter2": "~0.4",
-    "lodash": "~3",
-    "nanotimer": "^0.3.10",
-    "osc-min": "^0.2.0"
+    "babel": "latest",
+    "eventemitter2": "latest",
+    "glob": "^5.0.3",
+    "liftoff": "^2.0.3",
+    "lodash": "latest",
+    "nanotimer": "latest",
+    "osc-min": "latest",
+    "piu": "latest",
+    "teoria": "latest"
   }
 }

@@ -1,24 +1,59 @@
-'use strict';
+require('../test_helper')
+const proxyquire = require('proxyquire')
+const sinon = require('sinon')
+let player
+let createPlayer
+let chasm
 
-var h = require('../test_helper');
-var proxyquire = require('proxyquire');
-var chasm = proxyquire('../../dist/chasm', { './clock': mockClock });
+describe('chasm', () => {
 
-describe('chasm', function () {
+  // chasm has global state, so force reload for each test
+  before(() => proxyquire.noPreserveCache())
 
-  it('can add a piece', function () {
-    chasm.piece('My_Awesome_Song').part('foo');
-    chasm.piece('My_Awesome_Song').$parts[0].name
-      .should.equal('foo');
-  });
+  beforeEach(() => {
+    player = {
+      play: sinon.spy(),
+      stop: sinon.spy()
+    }
+    createPlayer = sinon.stub().returns(player)
+    let Piece = sinon.stub()
+    Piece
+      .onFirstCall().returns({ script: 'foo' })
+      .onSecondCall().returns({ script: 'bar' })
+    chasm = proxyquire('../../src/chasm', {
+      './piece': Piece,
+      './player': createPlayer
+    })
+  })
 
-  // it('can play a piece', function () {
-  //   chasm.piece('My_Awesome_Song');
-  //   chasm.play('My_Awesome_Song');
-  // });
+  after(() => proxyquire.preserveCache())
 
-});
+  it('can add and retrieve a named piece', () => {
+    chasm.piece('foosong')
+    chasm.piece('foosong').script.should.equal('foo')
+  })
 
-function mockClock() {
+  it('can add a piece whose name defaults to piece + index', () => {
+    chasm.piece()
+    chasm.piece()
+    chasm.piece('piece0').script.should.equal('foo')    
+    chasm.piece('piece1').script.should.equal('bar')    
+  })
 
-}
+  it('can play and stop a piece', () => {
+    chasm.piece('foosong')
+    chasm.play({ name: 'foosong' })
+    createPlayer.should.have.been.calledWith('foo')
+    player.play.should.have.been.called
+    chasm.stop()
+    player.stop.should.have.been.called
+  })
+
+  it('can a play a piece defaulting to the first', () => {
+    chasm.piece()
+    chasm.piece()
+    chasm.play({})
+    createPlayer.should.have.been.calledWith('foo')
+  })
+
+})

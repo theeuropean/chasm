@@ -1,63 +1,44 @@
-module.exports = createClock;
+module.exports = createClock
 
-let Timer = require('nanotimer');
-let EventEmitter = require('eventemitter2').EventEmitter2;
-let {
-  create
-} = require('lodash');
+const { bindAll } = require('lodash')
+const EventEmitter = require('eventemitter2').EventEmitter2
 
-function createClock({ ppqn = 24, bpm = 120 } = {}) {
+function createClock(interval) {
   
-  let pulseLength = (60 / bpm) / ppqn;
-  let running = false;
-  // let lookahead = 0.003;
-  // let nextPulse;
-  // let lastPing = nextPing;
-  let timer = new Timer();
+  const { emit, on } = bindAll(new EventEmitter({ wildcard: false }))
+  let running = false
+  let timer
+  let origin
+
+  return {
+    run, stop, on,
+    get running() { return running }
+  }
 
   function run() {
-    if(running) return;
-    running = true;
-    // nextPulse = audioContext.currentTime;
-    // timer.setInterval(poll, null, '1ms');
-    timer.setInterval(pulse, null, `${ pulseLength }s`);
+    if(running) return
+    running = true
+    origin = timeInMs()
+    timer = setInterval(pulse, interval)
+    setImmediate(pulse)
   }
 
   function stop() {
-    if(!running) return;
-    running = false;
-    timer.clearInterval();
+    if(!running) return
+    running = false
+    origin = null
+    clearInterval(timer)
+    timer = null
   }
-
-  // function poll() {
-  //   if(!running) return;
-  //   var t = audioContext.currentTime;
-  //   if((t + lookahead) > nextPulse) {
-  //     // t = nextPulse;
-  //     nextPulse = nextPulse + pulseLength;
-  //     pulse();
-  //   };
-  // }
 
   function pulse() {
-    if(!running) return;
-    self.emit('pulse');
+    if(!running) return
+    emit('pulse', timeInMs() - origin)
   }
 
-  // function logElapsed() {
-  //   var ct = context.currentTime;
-  //   console.log(ct - lastPing);
-  //   lastPing = ct;
-  // }
+  function timeInMs() {
+    const [s, ns] = process.hrtime()
+    return (s * 1000) + (ns / 1000000)
+  }
 
-  let self = create(EventEmitter.prototype, {
-    run,
-    stop,
-    get running() { return running; },
-    get bpm() { return bpm; },
-    get ppqn() { return ppqn; }
-  });
-
-  return self;
-
-};
+}
