@@ -12,7 +12,10 @@ function Piece(name) {
   let phraseCount = 0
   let script = { name, parts, sections }
 
-  return { part, phrase, ev, gr, fn, toOSC, section, strain, script }
+  return {
+    part, phrase, ev, gr, fn, section, strain, script,
+    osc: { out: oscOut }
+  }
 
   function part(...args) {
     let name = `part${ parts.length }`
@@ -99,7 +102,7 @@ function Piece(name) {
     return { fn, eventType, type: 'fn' }
   }
 
-  function toOSC(...argNames) {
+  function oscOut(...argNames) {
     const f = (occ) => {
       const address = `${ oscPrefix }/${ occ.source }/${ occ.ev.type }`
       const args = argNames.map(an => occ.ev.data[an])

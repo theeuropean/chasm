@@ -1,13 +1,13 @@
 require('../test_helper')
 const createPiece = require('../../src/piece')
-let piece, part, phrase, ev, gr, fn, toOSC, section, strain, script
+let piece, part, phrase, ev, gr, fn, osc, section, strain, script
 
 describe('piece', function () {
 
   beforeEach(() => {
     piece = createPiece()
     script = piece.script
-    ;({ part, phrase, ev, gr, fn, toOSC, section, strain } = piece)
+    ;({ part, phrase, ev, gr, fn, osc, section, strain } = piece)
   })
 
   it("exposes its parts (fnar fnar)", () => {
@@ -95,7 +95,7 @@ describe('piece', function () {
     script.parts[0].fns[0].fn.should.equal(f)
   })
 
-  it('can add a transform for a specified event type to a part', () => {
+  it('can add a function for a specified event type to a part', () => {
     let f = () => {}
     part(fn('note', f))
     script.parts[0].fns[0].eventType.should.equal('note')
@@ -103,7 +103,7 @@ describe('piece', function () {
   })
 
   it('can set an OSC destination for a part', () => {
-    part(toOSC('bar', 'baz'))
+    part(osc.out('bar', 'baz'))
     script.parts[0].fns[0].fn.should.exist
   })
 

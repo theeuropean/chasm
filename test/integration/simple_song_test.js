@@ -13,11 +13,11 @@ describe('chasm as a whole', () => {
 
   it('plays a simple song', function () {
 
-    let { part, phrase, gr, toOSC } = chasm.piece('simple_song')
+    let { part, phrase, gr, osc } = chasm.piece('simple_song')
 
     part(
       gr('x--- x--- x--- x---', 1),
-      toOSC('pitch')
+      osc.out('pitch')
     )
 
     chasm.play('simple_song')

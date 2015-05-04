@@ -1,11 +1,12 @@
-module.exports = { loadChasmFiles, piece, play, stop }
+module.exports = { loadChasmFiles, addPieceMethod, piece, play, stop }
 
 const { isString, isObject } = require('lodash')
 const glob = require('glob')
 const Piece = require('./piece')
 const player = require('./player')
 
-let pieces = new Map()
+const pieces = new Map()
+const customPieceMethods = new Map()
 let currentPlayer
 let currentChasmFile
 
@@ -18,6 +19,10 @@ function loadChasmFiles(cwd) {
     require(path)
     currentChasmFile = null
   }
+}
+
+function addPieceMethod(name, fn) {
+  customPieceMethods.set(name, fn)
 }
 
 function piece(name = currentChasmFile || `piece${ pieces.size }`) {
@@ -45,7 +50,10 @@ function stop() {
 }
 
 function addPiece(name) {
-  let p = Piece(name)
+  const p = Piece(name)
+  for(let [n, fn] of customPieceMethods) {
+    p[n] = fn.bind(p, p)
+  }
   pieces.set(name, p)
   return p
 }

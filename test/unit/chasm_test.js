@@ -18,8 +18,8 @@ describe('chasm', () => {
     createPlayer = sinon.stub().returns(player)
     let Piece = sinon.stub()
     Piece
-      .onFirstCall().returns({ script: 'foo' })
-      .onSecondCall().returns({ script: 'bar' })
+      .onFirstCall().returns({ script: { name: 'foo' } })
+      .onSecondCall().returns({ script: { name: 'bar' } })
     chasm = proxyquire('../../src/chasm', {
       './piece': Piece,
       './player': createPlayer
@@ -30,20 +30,20 @@ describe('chasm', () => {
 
   it('can add and retrieve a named piece', () => {
     chasm.piece('foosong')
-    chasm.piece('foosong').script.should.equal('foo')
+    chasm.piece('foosong').script.name.should.equal('foo')
   })
 
   it('can add a piece whose name defaults to piece + index', () => {
     chasm.piece()
     chasm.piece()
-    chasm.piece('piece0').script.should.equal('foo')    
-    chasm.piece('piece1').script.should.equal('bar')    
+    chasm.piece('piece0').script.name.should.equal('foo')    
+    chasm.piece('piece1').script.name.should.equal('bar')    
   })
 
   it('can play and stop a piece', () => {
-    chasm.piece('foosong')
-    chasm.play({ name: 'foosong' })
-    createPlayer.should.have.been.calledWith('foo')
+    chasm.piece('foo')
+    chasm.play({ name: 'foo' })
+    createPlayer.should.have.been.calledWith({ name : 'foo' })
     player.play.should.have.been.called
     chasm.stop()
     player.stop.should.have.been.called
@@ -53,7 +53,17 @@ describe('chasm', () => {
     chasm.piece()
     chasm.piece()
     chasm.play({})
-    createPlayer.should.have.been.calledWith('foo')
+    createPlayer.should.have.been.calledWith({ name: 'foo' })
+  })
+
+  it('can allow adding custom methods to any piece', () => {
+    chasm.addPieceMethod('foo', function (_piece, bar) {
+      _piece.script.newProp = bar
+      return bar
+    })
+    const p = chasm.piece()
+    p.foo('awooga').should.equal('awooga')
+    p.script.newProp.should.equal('awooga')
   })
 
 })
