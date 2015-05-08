@@ -1,13 +1,13 @@
 require('../test_helper')
 const createPiece = require('../../src/piece')
-let piece, part, phrase, ev, gr, fn, osc, section, strain, script
+let piece, part, phrase, ev, gr, fn, osc, /*waa,*/ section, strain, script
 
 describe('piece', function () {
 
   beforeEach(() => {
     piece = createPiece()
     script = piece.script
-    ;({ part, phrase, ev, gr, fn, osc, section, strain } = piece)
+    ;({ part, phrase, ev, gr, fn, osc, /*waa,*/ section, strain } = piece)
   })
 
   it("exposes its parts (fnar fnar)", () => {
@@ -106,6 +106,12 @@ describe('piece', function () {
     part(osc.out('bar', 'baz'))
     script.parts[0].fns[0].fn.should.exist
   })
+
+  // it('can set a Web Audio API instrument for a part', () => {
+  //   let f = () => {}    
+  //   part(waa.instr(f))
+  //   script.parts[0].fns[0].fn.should.equal(f)
+  // })
 
   it('can add a section with a default name', () => {
     section()

@@ -15,6 +15,7 @@ function Piece(name) {
   return {
     part, phrase, ev, gr, fn, section, strain, script,
     osc: { out: oscOut }
+    // waa: { instr: waaInstr }
   }
 
   function part(...args) {
@@ -115,6 +116,11 @@ function Piece(name) {
     }
     return fn(f)
   }
+
+  // function waaInstr(...args) {
+  //   args = args.map()
+  //   return fn()
+  // }
 
   function section(...args) {
     let name = `section${ sections.length }`
