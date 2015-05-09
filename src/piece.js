@@ -13,7 +13,7 @@ function Piece(name) {
   let script = { name, parts, sections }
 
   return {
-    part, phrase, ev, gr, fn, section, strain, script,
+    part, phrase, ev, gr, fn, dest, section, strain, script,
     osc: { out: oscOut }
     // waa: { instr: waaInstr }
   }
@@ -21,9 +21,9 @@ function Piece(name) {
   function part(...args) {
     let name = `part${ parts.length }`
     let phrases = []
-    let occs = []
+    let evs = []
     let fns = []
-    let dest
+    let dests = []
     for(let arg of flatten(args)) {
       if(isString(arg)) {
         name = arg
@@ -31,17 +31,20 @@ function Piece(name) {
       else if(arg.type === 'phrase') {
         phrases.push(arg)
       }
-      else if(arg.type === 'occ') {
-        occs.push(arg)
+      else if(arg.type === 'ev') {
+        evs.push(arg)
       }
       else if(arg.type === 'fn') {
         fns.push(arg)
       }
+      else if(arg.type === 'dest') {
+        dests.push(arg)
+      }
     }
-    if(occs.length) {
-      phrases.push(phrase(occs))
+    if(evs.length) {
+      phrases.push(phrase(evs))
     }
-    let newPart = { name, phrases, fns, dest, type: 'part' }
+    let newPart = { name, phrases, fns, dests, type: 'part' }
     parts.push(newPart)
     phraseCount = 0
     return newPart
@@ -49,23 +52,24 @@ function Piece(name) {
 
   function phrase(...args) {
     let name = `phrase${ phraseCount }`
-    let occs = []
+    let evs = []
     for(let arg of flatten(args)) {
       if(isString(arg)) {
         name = arg
       }
-      else if(arg.type === 'occ') {
-        occs.push(arg)
-        occs = sortBy(occs, 'pos')
+      else if(arg.type === 'ev') {
+        evs.push(arg.ev)
+        evs = sortBy(evs, 'pos')
       }
     }    
     phraseCount++
-    return { name, occs, type: 'phrase' }
+    return { name, evs, type: 'phrase' }
   }
 
   function ev(pos, type, data) {
-    const _ev = data ? { type, data } : { type }
-    return { pos, ev: _ev, type: 'occ' }
+    const ev = { pos, type }
+    if(data) ev.data = data
+    return { ev, type: 'ev' }
   }
 
   function gr(patt, evCode) {
@@ -78,7 +82,7 @@ function Piece(name) {
       type = 'note'
       data = { pitch: evCode }
     }
-    let occs = patt
+    let evs = patt
       .replace(/ /g, '')
       .split('')
       .map((chr, i) => {
@@ -86,27 +90,45 @@ function Piece(name) {
           return ev(i * (1/4), type, data)
         }
       });
-    return compact(occs)
+    return compact(evs)
   }
 
   function fn(...args) {
-    let eventType
+    let evType
     let fn
     for(let arg of flatten(args)) {
       if(isString(arg)) {
-        eventType = arg
+        evType = arg
       }
       else if(isFunction(arg)) {
         fn = arg
       }
     }
-    return { fn, eventType, type: 'fn' }
+    return { fn, evType, type: 'fn' }
   }
 
+  function dest(...args) {
+    let evType
+    let fn
+    for(let arg of flatten(args)) {
+      if(isString(arg)) {
+        evType = arg
+      }
+      else if(isFunction(arg)) {
+        fn = arg
+      }
+    }
+    return { fn, evType, type: 'dest' }
+  }
+
+  // function destOrFn(args, type) {
+    
+  // }
+
   function oscOut(...argNames) {
-    const f = (occ) => {
-      const address = `${ oscPrefix }/${ occ.source }/${ occ.ev.type }`
-      const args = argNames.map(an => occ.ev.data[an])
+    const f = ev => {
+      const address = `${ oscPrefix }/${ ev.source }/${ ev.type }`
+      const args = argNames.map(an => ev.data[an])
       send({
         address,
         args,

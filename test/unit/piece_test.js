@@ -1,13 +1,13 @@
 require('../test_helper')
 const createPiece = require('../../src/piece')
-let piece, part, phrase, ev, gr, fn, osc, /*waa,*/ section, strain, script
+let piece, part, phrase, ev, gr, fn, dest, osc, /*waa,*/ section, strain, script
 
 describe('piece', function () {
 
   beforeEach(() => {
     piece = createPiece()
     script = piece.script
-    ;({ part, phrase, ev, gr, fn, osc, /*waa,*/ section, strain } = piece)
+    ;({ part, phrase, ev, gr, fn, dest, osc, /*waa,*/ section, strain } = piece)
   })
 
   it("exposes its parts (fnar fnar)", () => {
@@ -36,11 +36,11 @@ describe('piece', function () {
     script.parts[0].phrases[0].name.should.equal('foo')
   })
 
-  it('can add an event occurrence to a phrase', () => {
+  it('can add an event to a phrase', () => {
     part(phrase(ev(0, 'note', { pitch: 1 })))
-    script.parts[0].phrases[0].occs
+    script.parts[0].phrases[0].evs
       .should.deep.equal([
-        { pos: 0, ev: { type: 'note', data: { pitch: 1 } }, type: 'occ' }
+        { pos: 0, type: 'note', data: { pitch: 1 } }
       ])
   })
 
@@ -49,43 +49,40 @@ describe('piece', function () {
       ev(2, 'note', { pitch: 2 }),
       ev(0, 'note', { pitch: 1 })
     ))
-    script.parts[0].phrases[0].occs
+    script.parts[0].phrases[0].evs
       .should.deep.equal([
-        { pos: 0, ev: { type: 'note', data: { pitch: 1 } }, type: 'occ' },
-        { pos: 2, ev: { type: 'note', data: { pitch: 2 } }, type: 'occ' }
+        { pos: 0, type: 'note', data: { pitch: 1 } },
+        { pos: 2, type: 'note', data: { pitch: 2 } }
       ])
   })
 
   it('can create a phrase from a grid pattern', () => {
-    let nn1 = { type: 'note', data: { pitch: 1 } }
     part(phrase(gr('x--- x--- x--- x-x-', 1)))
-    script.parts[0].phrases[0].occs
+    script.parts[0].phrases[0].evs
       .should.deep.equal([
-        { pos: 0,   ev: nn1, type: 'occ' },
-        { pos: 1,   ev: nn1, type: 'occ' },
-        { pos: 2,   ev: nn1, type: 'occ' },
-        { pos: 3,   ev: nn1, type: 'occ' },
-        { pos: 3.5, ev: nn1, type: 'occ' }
+        { pos: 0,   type: 'note', data: { pitch: 1 } },
+        { pos: 1,   type: 'note', data: { pitch: 1 } },
+        { pos: 2,   type: 'note', data: { pitch: 1 } },
+        { pos: 3,   type: 'note', data: { pitch: 1 } },
+        { pos: 3.5, type: 'note', data: { pitch: 1 } }
       ])
   })
 
   it('can create a grid pattern without specifying a phrase', () => {
-    let nn1 = { type: 'note', data: { pitch: 1 } }
     part(gr('x--- ---- ---- --x-', 1))
-    script.parts[0].phrases[0].occs
+    script.parts[0].phrases[0].evs
       .should.deep.equal([
-        { pos: 0,   ev: nn1, type: 'occ' },
-        { pos: 3.5, ev: nn1, type: 'occ' }
+        { pos: 0,   type: 'note', data: { pitch: 1 } },
+        { pos: 3.5, type: 'note', data: { pitch: 1 } }
       ])
   })
 
   it('can create a grid pattern of custom events', () => {
-    let kick = { type: 'kick' }
     part(gr('x--- ---- ---- --x-', 'kick'))
-    script.parts[0].phrases[0].occs
+    script.parts[0].phrases[0].evs
       .should.deep.equal([
-        { pos: 0,   ev: kick, type: 'occ' },
-        { pos: 3.5, ev: kick, type: 'occ' }
+        { pos: 0,   type: 'kick' },
+        { pos: 3.5, type: 'kick' }
       ])
   })
 
@@ -98,14 +95,27 @@ describe('piece', function () {
   it('can add a function for a specified event type to a part', () => {
     let f = () => {}
     part(fn('note', f))
-    script.parts[0].fns[0].eventType.should.equal('note')
+    script.parts[0].fns[0].evType.should.equal('note')
     script.parts[0].fns[0].fn.should.equal(f)
   })
 
-  it('can set an OSC destination for a part', () => {
-    part(osc.out('bar', 'baz'))
-    script.parts[0].fns[0].fn.should.exist
+  it('can add a destination to a part', () => {
+    let f = () => {}
+    part(dest(f))
+    script.parts[0].dests[0].fn.should.equal(f)
   })
+
+  it('can add a destination for a specified event type to a part', () => {
+    let f = () => {}
+    part(dest('note', f))
+    script.parts[0].dests[0].evType.should.equal('note')
+    script.parts[0].dests[0].fn.should.equal(f)
+  })
+
+  // it('can set an OSC destination for a part', () => {
+  //   part(osc.out('bar', 'baz'))
+  //   script.parts[0].fns[0].fn.should.exist
+  // })
 
   // it('can set a Web Audio API instrument for a part', () => {
   //   let f = () => {}    

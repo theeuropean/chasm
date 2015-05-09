@@ -15,11 +15,11 @@ describe('Renderer', () => {
   it('can render a piece with one part & no sections', () => {
     const renderer = Renderer(h.ONE_PART_SCRIPT)
     renderer.render(0, 5).should.deep.equal([
-      { pos: 0,     source: 'part0', ev: h.N1 },
-      { pos: 1,     source: 'part0', ev: h.N1 },
-      { pos: 2,     source: 'part0', ev: h.N1 },
-      { pos: 3.75,  source: 'part0', ev: h.N1 },      
-      { pos: 0,     source: 'part0', ev: h.N1 }
+      { pos: 0,    source: 'part0', type: 'note', data: { pitch: 1 } },
+      { pos: 1,    source: 'part0', type: 'note', data: { pitch: 1 } },
+      { pos: 2,    source: 'part0', type: 'note', data: { pitch: 1 } },
+      { pos: 3.75, source: 'part0', type: 'note', data: { pitch: 1 } },      
+      { pos: 0,    source: 'part0', type: 'note', data: { pitch: 1 } }
     ])
   })
 
@@ -38,54 +38,54 @@ describe('Renderer', () => {
   it('can play a section of a piece with sections', () => {
     const renderer = Renderer(h.TWO_PART_TWO_SECTION_SCRIPT)
     renderer.render(0, 5).should.deep.equal([
-      { pos: 0,     source: 'part0', ev: h.N1 },
-      { pos: 1,     source: 'part0', ev: h.N1 },
-      { pos: 2,     source: 'part0', ev: h.N1 },
-      { pos: 3.75,  source: 'part0', ev: h.N1 },      
-      { pos: 0,     source: 'part0', ev: h.N1 }
+      { pos: 0,    source: 'part0', type: 'note', data: { pitch: 1 } },
+      { pos: 1,    source: 'part0', type: 'note', data: { pitch: 1 } },
+      { pos: 2,    source: 'part0', type: 'note', data: { pitch: 1 } },
+      { pos: 3.75, source: 'part0', type: 'note', data: { pitch: 1 } },      
+      { pos: 0,    source: 'part0', type: 'note', data: { pitch: 1 } }
     ])
     renderer.changeSection('section1')
     renderer.render(5, 9).should.deep.equal([
-      { pos: 1,     source: 'part1', ev: h.N2 },
-      { pos: 2,     source: 'part1', ev: h.N2 },
-      { pos: 3.75,  source: 'part1', ev: h.N2 },      
-      { pos: 0,     source: 'part1', ev: h.N2 }
+      { pos: 1,    source: 'part1', type: 'note', data: { pitch: 2 } },
+      { pos: 2,    source: 'part1', type: 'note', data: { pitch: 2 } },
+      { pos: 3.75, source: 'part1', type: 'note', data: { pitch: 2 } },
+      { pos: 0,    source: 'part1', type: 'note', data: { pitch: 2 } }
     ])
   })
 
   it('can play a piece with a function', () => {
     const script = cloneDeep(h.ONE_PART_SCRIPT)
     script.parts[0].fns.push({
-      fn: input => {
-        input.ev.data.pitch++
-        return input
+      fn: ev => {
+        ev.data.pitch++
+        return ev
       }
     })
     const renderer = Renderer(script)
-    pluck(renderer.render(0, 4), 'ev.data.pitch').should.deep.equal([2, 2, 2, 2])
+    pluck(renderer.render(0, 4), 'data.pitch').should.deep.equal([2, 2, 2, 2])
   })
 
   it('can filter the events going into a function', () => {
     const script = cloneDeep(h.ONE_PART_SCRIPT)
-    script.parts[0].phrases[0].occs.unshift(
-      { pos: 0, ev: { type: 'foo', data: { pitch: 99 } } }
+    script.parts[0].phrases[0].evs.unshift(
+      { pos: 0, type: 'foo', data: { pitch: 99 } }
     )
     script.parts[0].fns.push({
-      fn: input => {
-        input.ev.data.pitch++
-        return input
+      fn: ev => {
+        ev.data.pitch++
+        return ev
       },
-      eventType: 'note'
+      evType: 'note'
     })
     script.parts[0].fns.push({
-      fn: input => {
-        input.ev.data.pitch--
-        return input
+      fn: ev => {
+        ev.data.pitch--
+        return ev
       },
-      eventType: 'foo'
+      evType: 'foo'
     })
     const renderer = Renderer(script)
-    pluck(renderer.render(0, 4), 'ev.data.pitch')
+    pluck(renderer.render(0, 4), 'data.pitch')
       .should.deep.equal([98, 2, 2, 2, 2])
   })
 

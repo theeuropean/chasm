@@ -19,14 +19,14 @@ function Renderer(script) {
 
   function render(from, to) {
     // if(sections.length) console.log([fromMs, toMs, from, to].join(' '))
-    let occs = []
+    let evs = []
     for(let partRenderer of unsectionedPartRenderers) {
-      occs = occs.concat(partRenderer.render(from, to))
+      evs = evs.concat(partRenderer.render(from, to))
     }
     if(currentSectionRenderer) {
-      occs = occs.concat(currentSectionRenderer.render(from, to))
+      evs = evs.concat(currentSectionRenderer.render(from, to))
     }
-    return occs
+    return evs
   }
 
   function changeSection(sectionName) {
@@ -56,11 +56,11 @@ function SectionRenderer(section, allPartRenderers) {
   return { render }
 
   function render(from, to) {
-    let occs = []
+    let evs = []
     for(let partRenderer of partRenderers) {
-      occs = occs.concat(partRenderer.render(from, to))
+      evs = evs.concat(partRenderer.render(from, to))
     }
-    return occs
+    return evs
   }
 
 }
@@ -69,24 +69,24 @@ function PartRenderer(part) {
 
   const phrases = part.phrases || []
   const phraseRenderers = phrases.map(PhraseRenderer)
-  setSourceForOccs()
+  setSourceForevs()
 
   return { render }
 
   function render(from, to) {
-    let occs = phraseRenderers[0].render(from, to)
-    if(occs.length && part.fns && part.fns.length) {
+    let evs = phraseRenderers[0].render(from, to)
+    if(evs.length && part.fns && part.fns.length) {
       part.fns.forEach(fn => {
-        occs
-          .filter(occ => !fn.eventType || occ.ev.type === fn.eventType)
-          .forEach(occ => merge(occ, fn.fn(occ)))
+        evs
+          .filter(ev => !fn.evType || ev.type === fn.evType)
+          .forEach(ev => merge(ev, fn.fn(ev)))
       })
     }
-    return occs
+    return evs
   }
 
-  function setSourceForOccs() {
-    phrases.forEach(phr => phr.occs.forEach(occ => occ.source = part.name))
+  function setSourceForevs() {
+    phrases.forEach(phr => phr.evs.forEach(ev => ev.source = part.name))
   }
 
 }
@@ -97,23 +97,25 @@ function PhraseRenderer(phrase) {
 
   return { render }
 
+  // There's probably a cleverer/terser way of expressing this algorithm
+
   function render(from, to) {
-    let occs = []
+    let evs = []
     let _from = from
     let nextLoopBoundary = (Math.floor(from / length) + 1) * length
     while(nextLoopBoundary < to) {
-      concatInPlace(occs, renderLoopRange(_from % length))
+      concatInPlace(evs, renderLoopRange(_from % length))
       _from = nextLoopBoundary
       nextLoopBoundary = nextLoopBoundary + length
     }
-    concatInPlace(occs, renderLoopRange(_from % length, (to % length) || length)) 
-    return occs
+    concatInPlace(evs, renderLoopRange(_from % length, (to % length) || length)) 
+    return evs
   }
 
   function renderLoopRange(from, to = length) {
     if(from < 0 || from > to || to > length) throw new ArgumentException()
-    return phrase.occs
-      .filter(occ => occ.pos >= from && occ.pos < to)
+    return phrase.evs
+      .filter(ev => ev.pos >= from && ev.pos < to)
       .map(cloneDeep)    
   }
 
@@ -121,36 +123,6 @@ function PhraseRenderer(phrase) {
     Array.prototype.push.apply(destination, source)
     return destination
   }
-
-  // function render(from, to) {
-  //   // There's probably a cleverer/terser way of expressing this algorithm
-
-  //   // Number of times around the loop, rounded up
-  //   const loopCount = Math.ceil((to - from) / length)
-  //   let occs = []
-
-  //   for(let i = 0; i < loopCount; i++) {
-  //     let thisFrom = from + (i * length)
-  //     let thisTo = Math.min(thisFrom + length, to)
-  //     occs = occs.concat(renderLoopSection(thisFrom, thisTo))
-  //   }
-
-  //   return occs
-  // }
-
-  // function renderLoopSection(from, to) {
-  //   const fromLoopPos = from % length
-  //   const toLoopPos = to % length
-
-  //   // If toLoopPos < fromLoopPos this means that the selection window straddles
-  //   // the end of the loop, so we need a different filter to return the correct
-  //   // occs
-  //   const filter = fromLoopPos < toLoopPos ?
-  //     (occ => occ.pos >= fromLoopPos && occ.pos < toLoopPos) :
-  //     (occ => occ.pos >= fromLoopPos || occ.pos < toLoopPos)
-    
-  //   return phrase.occs.filter(filter).map(cloneDeep)    
-  // }
 
 }
 

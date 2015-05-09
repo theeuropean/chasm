@@ -14,7 +14,21 @@ describe('player', () => {
   // NOTE `beforeEach(oscSpy.reset)` does not work :(
   beforeEach(() => spy.reset())
 
-  // it('can play a piece with one part & no sections', () => {
+  // it('can play a piece', () => {
+  //   const script = {
+  //     parts: [
+  //       {
+  //         name: 'part0',
+  //         dests: [
+  //           {
+  //             fn: occ => {
+
+  //           }
+  //           }
+  //         ]
+  //       }
+  //     ]
+  //   }
   //   let p = getPlayer(h.ONE_PART_SCRIPT)
   //   p.play()
   //   clock.runFor(2.1) // 2.1 seconds is just over one bar at 120bpm

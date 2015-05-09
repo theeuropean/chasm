@@ -3,21 +3,18 @@ const chai = require('chai')
 chai.should()
 chai.use(require('sinon-chai'))
 
-const N1 = { type: 'note', data: { pitch: 1 } }
-const N2 = { type: 'note', data: { pitch: 2 } }
-
 const ONE_PART_SCRIPT = {
   parts: [
     {
       name: 'part0',
       phrases: [
         {
-          occs: [
+          evs: [
             // x--- x--- x--- ---x
-            { pos: 0, ev: N1 },
-            { pos: 1, ev: N1 },
-            { pos: 2, ev: N1 },
-            { pos: 3.75, ev: N1 }
+            { pos: 0,    type: 'note', data: { pitch: 1 } },
+            { pos: 1,    type: 'note', data: { pitch: 1 } },
+            { pos: 2,    type: 'note', data: { pitch: 1 } },
+            { pos: 3.75, type: 'note', data: { pitch: 1 } }
           ]
         }
       ],
@@ -34,12 +31,12 @@ const TWO_PART_TWO_SECTION_SCRIPT = {
       name: 'part1',
       phrases: [
         {
-          occs: [
+          evs: [
             // x--- x--- x--- ---x
-            { pos: 0, ev: N2 },
-            { pos: 1, ev: N2 },
-            { pos: 2, ev: N2 },
-            { pos: 3.75, ev: N2 }
+            { pos: 0,    type: 'note', data: { pitch: 2 } },
+            { pos: 1,    type: 'note', data: { pitch: 2 } },
+            { pos: 2,    type: 'note', data: { pitch: 2 } },
+            { pos: 3.75, type: 'note', data: { pitch: 2 } }
           ]
         }
       ],
@@ -54,8 +51,6 @@ const TWO_PART_TWO_SECTION_SCRIPT = {
 }
 
 module.exports = {
-  N1,
-  N2,
   ONE_PART_SCRIPT,
   TWO_PART_TWO_SECTION_SCRIPT
 }

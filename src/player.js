@@ -12,7 +12,7 @@ function Player(script, options = {}) {
   // const dests = new Map(
   //   (script.parts || []).map(part => [part.name, part.dest])
   // )
-  const sectionNames = (script.sections || []).map(sec => sec.name)
+  // const sectionNames = (script.sections || []).map(sec => sec.name)
   const bpm = options.bpm || DEFAULT_BPM
   const clock = Clock(INTERVAL)
   const bpMs = bpm / 60000
@@ -22,7 +22,7 @@ function Player(script, options = {}) {
 
   clock.on('pulse', enqueue)
   
-  return { play, change, stop }
+  return { play, stop }
 
   function play() {
     if(clock.running) return
@@ -31,15 +31,15 @@ function Player(script, options = {}) {
     clock.run()
   }
 
-  function change(command) {
-    const segments = command.split('/')
-    const sectionName = segments.length && sectionNames.includes(segments[0]) && segments[0]
-    if(sectionName) {
-      if(segments[1] === 'play') {
-        renderer.changeSection(sectionName)
-      }
-    }
-  }
+  // function change(command) {
+  //   const segments = command.split('/')
+  //   const sectionName = segments.length && sectionNames.includes(segments[0]) && segments[0]
+  //   if(sectionName) {
+  //     if(segments[1] === 'play') {
+  //       renderer.changeSection(sectionName)
+  //     }
+  //   }
+  // }
 
   function stop() {
     if(!clock.running) return
