@@ -2,44 +2,44 @@ const h = require('../test_helper')
 const proxyquire = require('proxyquire')
 const _ = require('lodash')
 const sinon = require('sinon')
-const spy = sinon.spy()
 const clock = require('../fake_clock')()
-const player = proxyquire('../../src/player', {
-  './clock': clock.create
-})
-let script
+let player
+let renderer
 
 describe('player', () => {
 
-  // NOTE `beforeEach(oscSpy.reset)` does not work :(
-  beforeEach(() => spy.reset())
+  beforeEach(() => {
+    renderer = { render: sinon.stub() }
+    player = proxyquire('../../src/player', {
+      './clock': clock.create,
+      './renderer': () => renderer
+    })
+  })
 
-  // it('can play a piece', () => {
-  //   const script = {
-  //     parts: [
-  //       {
-  //         name: 'part0',
-  //         dests: [
-  //           {
-  //             fn: occ => {
+  it('can play a piece', () => {
+    let p = player()
+    p.play()
+    clock.runFor(0.1)
+    renderer.render.should.have.callCount(12)
+    renderer.render.should.have.been.calledWith(0.18, 0.196)
+  })
 
-  //           }
-  //           }
-  //         ]
-  //       }
-  //     ]
-  //   }
-  //   let p = getPlayer(h.ONE_PART_SCRIPT)
-  //   p.play()
-  //   clock.runFor(2.1) // 2.1 seconds is just over one bar at 120bpm
-  //   oscSpy.should.have.callCount(5)
-  //   oscSpy.should.have.always.been.calledWith({
-  //     address: '/part0/note',
-  //     args: [1],
-  //     port: 24276,
-  //     udpAddress: 'localhost'
-  //   })
-  // })
+  it('can pipe its output to a dest function', () => {
+    const spy = sinon.spy()
+    const script = {
+      parts: [
+        {
+          name: 'part0',
+          dests: [{ fn: spy }]
+        }
+      ]
+    }
+    renderer.render.returns([{ type: 'foo' }])
+    let p = player(script)
+    p.play()
+    clock.runFor(0.01)
+    spy.should.have.been.calledWith({ type: 'foo' })
+  })
 
   // it('prefixes osc messages with piece name if it has one', () => {
   //   let script = _.cloneDeep(h.ONE_PART_SCRIPT)
@@ -134,10 +134,5 @@ describe('player', () => {
   //     udpAddress: 'localhost'
   //   })
   // })
-
-  function getPlayer(fixture) {
-    script = _.cloneDeep(fixture)
-    
-  }
 
 })

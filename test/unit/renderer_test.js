@@ -1,11 +1,6 @@
 const h = require('../test_helper')
 const Renderer = require('../../src/renderer')
 const { cloneDeep, pluck } = require('lodash')
-// const sinon = require('sinon')
-// const spy = sinon.spy()
-// const clock = require('../fake_clock')()
-let script
-// let renderer
 
 describe('Renderer', () => {
 
