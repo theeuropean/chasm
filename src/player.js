@@ -7,10 +7,8 @@ const INTERVAL = 8
 const DEFAULT_BPM = 120
 
 function Player(script, options = {}) {
-
-  const destsByPartName = new Map(
-    (script.parts || []).map(part => [part.name, part.dests])
-  )
+  
+  const destsByPartName = getDestsByPartName()
   // const sectionNames = (script.sections || []).map(sec => sec.name)
   const bpm = options.bpm || DEFAULT_BPM
   const clock = Clock(INTERVAL)
@@ -53,19 +51,30 @@ function Player(script, options = {}) {
     // if(sections.length) console.log([fromMs, toMs, from, to].join(' '))
     const evs = renderer.render(from, to)
     if(!(evs && evs.length)) return
-    evs.forEach(ev => {
-      destsByPartName.get(ev.source)
+    for(let ev of evs) {
+      let dests = destsByPartName.get(ev.source)
+      if(!(dests && dests.length)) return
+      dests
         .filter(dest => !dest.evType || ev.type === dest.evType)
-        .forEach(dest => dest.fn())
-    })
-
-
-      part.fns.forEach(fn => {
-        evs
-          .filter(ev => !fn.evType || ev.type === fn.evType)
-          .forEach(ev => merge(ev, fn.fn(ev)))
-      })
+        .forEach(dest => dest.dispatchFn(cloneDeep(ev)))
     }
+  }
+
+  // For every part dest, add a dispatch function by calling
+  // the dest's higher-order initialization function
+  // then return a map of part names to dest arrays
+  function getDestsByPartName() {
+    const parts = script.parts || []
+    for(let part of parts) {
+      if(part.dests) {
+        for(let dest of part.dests) {
+          dest.dispatchFn = dest.fn()
+        }
+      }
+    }
+    return new Map(
+      parts.map(part => [part.name, part.dests])
+    )
   }
 
 }

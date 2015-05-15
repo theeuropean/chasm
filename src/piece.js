@@ -4,7 +4,7 @@ module.exports = Piece
 
 const { sortBy, isString, isFunction, flatten, compact } = require('lodash')
 
-function Piece(name) {
+function Piece(name, deps = {}) {
 
   const oscPrefix = name ? `/${ name }` : ''
   let parts = []

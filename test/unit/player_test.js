@@ -17,28 +17,31 @@ describe('player', () => {
   })
 
   it('can play a piece', () => {
-    let p = player()
+    let p = player('')
     p.play()
     clock.runFor(0.1)
     renderer.render.should.have.callCount(12)
     renderer.render.should.have.been.calledWith(0.18, 0.196)
   })
 
-  it('can pipe its output to a dest function', () => {
+  it('can initialise and pipe its output to a dest function', () => {
     const spy = sinon.spy()
+    const factory = sinon.stub()
+    factory.returns(spy)
     const script = {
       parts: [
         {
           name: 'part0',
-          dests: [{ fn: spy }]
+          dests: [{ fn: factory }]
         }
       ]
     }
-    renderer.render.returns([{ type: 'foo' }])
+    renderer.render.returns([{ type: 'foo', source: 'part0' }])
     let p = player(script)
+    factory.should.have.been.calledOnce;
     p.play()
     clock.runFor(0.01)
-    spy.should.have.been.calledWith({ type: 'foo' })
+    spy.should.have.been.calledWith({ type: 'foo', source: 'part0' })
   })
 
   // it('prefixes osc messages with piece name if it has one', () => {

@@ -1,13 +1,13 @@
 require('../test_helper')
 const createPiece = require('../../src/piece')
-let piece, part, phrase, ev, gr, fn, dest, osc, /*waa,*/ section, strain, script
+let piece, part, phrase, ev, gr, /*fn,*/ dest, osc, /*waa,*/ section, strain, script
 
 describe('piece', function () {
 
   beforeEach(() => {
     piece = createPiece()
     script = piece.script
-    ;({ part, phrase, ev, gr, fn, dest, osc, /*waa,*/ section, strain } = piece)
+    ;({ part, phrase, ev, gr, /*fn,*/ dest, osc, /*waa,*/ section, strain } = piece)
   })
 
   it("exposes its parts (fnar fnar)", () => {
@@ -86,18 +86,18 @@ describe('piece', function () {
       ])
   })
 
-  it('can add a function to a part', () => {
-    let f = () => {}
-    part(fn(f))
-    script.parts[0].fns[0].fn.should.equal(f)
-  })
+  // it('can add a function to a part', () => {
+  //   let f = () => {}
+  //   part(fn(f))
+  //   script.parts[0].fns[0].fn.should.equal(f)
+  // })
 
-  it('can add a function for a specified event type to a part', () => {
-    let f = () => {}
-    part(fn('note', f))
-    script.parts[0].fns[0].evType.should.equal('note')
-    script.parts[0].fns[0].fn.should.equal(f)
-  })
+  // it('can add a function for a specified event type to a part', () => {
+  //   let f = () => {}
+  //   part(fn('note', f))
+  //   script.parts[0].fns[0].evType.should.equal('note')
+  //   script.parts[0].fns[0].fn.should.equal(f)
+  // })
 
   it('can add a destination to a part', () => {
     let f = () => {}
