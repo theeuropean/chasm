@@ -6,4 +6,4 @@ function send({ address, args, port, udpAddress }) {
   return udp.send({ buf, port, address: udpAddress });
 }
 
-export { send }
+module.exports = { send }

@@ -1,11 +1,11 @@
 require('../test_helper')
-const createPiece = require('../../src/piece')
+const pieceFactory = require('../../src/piece')
 let piece, part, phrase, ev, gr, /*fn,*/ dest, osc, /*waa,*/ section, strain, script
 
 describe('piece', function () {
 
   beforeEach(() => {
-    piece = createPiece()
+    piece = pieceFactory()
     script = piece.script
     ;({ part, phrase, ev, gr, /*fn,*/ dest, osc, /*waa,*/ section, strain } = piece)
   })

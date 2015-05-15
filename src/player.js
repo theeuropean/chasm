@@ -1,30 +1,28 @@
-import { flatten, cloneDeep } from 'lodash'
-import Renderer from './renderer'
-import Clock from './clock'
+const { flatten, cloneDeep } = require('lodash')
+const renderer = require('./renderer')
+const clock = require('./clock')
 
 const LOOKAHEAD = 10
 const INTERVAL = 8
 const DEFAULT_BPM = 120
 
-function Player(script, options = {}) {
+function player(script, options = {}) {
   
   const destsByPartName = getDestsByPartName()
   // const sectionNames = (script.sections || []).map(sec => sec.name)
   const bpm = options.bpm || DEFAULT_BPM
-  const clock = Clock(INTERVAL)
+  const clk = clock(INTERVAL)
   const bpMs = bpm / 60000
-  let renderer
+  let rndr
   let lastQueueEnd
 
-  clock.on('pulse', enqueue)
+  clk.on('pulse', enqueue)
   
-  return { play, stop }
-
   function play() {
-    if(clock.running) return
-    renderer = Renderer(script)
+    if(clk.running) return
+    rndr = renderer(script)
     lastQueueEnd = 0
-    clock.run()
+    clk.run()
   }
 
   // function change(command) {
@@ -38,8 +36,8 @@ function Player(script, options = {}) {
   // }
 
   function stop() {
-    if(!clock.running) return
-    clock.stop()
+    if(!clk.running) return
+    clk.stop()
   }
 
   function enqueue(t) {
@@ -49,7 +47,7 @@ function Player(script, options = {}) {
     const from = fromMs * bpMs
     const to = toMs * bpMs
     // if(sections.length) console.log([fromMs, toMs, from, to].join(' '))
-    const evs = renderer.render(from, to)
+    const evs = rndr.render(from, to)
     if(!(evs && evs.length)) return
     for(let ev of evs) {
       let dests = destsByPartName.get(ev.source)
@@ -77,6 +75,8 @@ function Player(script, options = {}) {
     )
   }
 
+  return { play, stop }
+
 }
 
-export default Player
+module.exports = player

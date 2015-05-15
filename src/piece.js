@@ -1,22 +1,13 @@
-import { send } from './osc'
-
-module.exports = Piece
-
+const { send: sendOSC } = require('./osc')
 const { sortBy, isString, isFunction, flatten, compact } = require('lodash')
 
-function Piece(name, deps = {}) {
+function piece(name, deps = {}) {
 
   const oscPrefix = name ? `/${ name }` : ''
   let parts = []
   let sections = []
   let phraseCount = 0
   let script = { name, parts, sections }
-
-  return {
-    part, phrase, ev, gr, fn, dest, section, strain, script,
-    osc: { out: oscOut }
-    // waa: { instr: waaInstr }
-  }
 
   function part(...args) {
     let name = `part${ parts.length }`
@@ -129,7 +120,7 @@ function Piece(name, deps = {}) {
     const f = ev => {
       const address = `${ oscPrefix }/${ ev.source }/${ ev.type }`
       const args = argNames.map(an => ev.data[an])
-      send({
+      sendOSC({
         address,
         args,
         udpAddress: 'localhost',
@@ -170,4 +161,12 @@ function Piece(name, deps = {}) {
   //   return parts.find(p => p.name === partName)
   // }
 
+  return {
+    part, phrase, ev, gr, fn, dest, section, strain, script,
+    osc: { out: oscOut }
+    // waa: { instr: waaInstr }
+  }
+
 }
+
+module.exports = piece

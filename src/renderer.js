@@ -1,39 +1,36 @@
-import { flatten, cloneDeep, merge, findIndex } from 'lodash'
+const { flatten, cloneDeep, merge, findIndex } = require('lodash')
 
-function Renderer(script) {
-
+function renderer(script) {
   script = cloneDeep(script)
   const parts = script.parts || []
   const sections = script.sections || []
   const partRenderers = new Map(
-    parts.map(part => [part.name, PartRenderer(part)])
+    parts.map(part => [part.name, partRenderer(part)])
   )
   const sectionRenderers = new Map(
-    sections.map(section => [section.name, SectionRenderer(section, partRenderers)])
+    sections.map(section => [section.name, sectionRenderer(section, partRenderers)])
   )
-  const unsectionedPartRenderers = getUnsectionedPartRenderers()
-  let currentSectionRenderer
+  const unsectionedpartRenderers = getUnsectionedpartRenderers()
+  let currentsectionRenderer
   if(sections.length) changeSection(sections[0].name)
-
-  return { render, changeSection }
 
   function render(from, to) {
     // if(sections.length) console.log([fromMs, toMs, from, to].join(' '))
     let evs = []
-    for(let partRenderer of unsectionedPartRenderers) {
+    for(let partRenderer of unsectionedpartRenderers) {
       evs = evs.concat(partRenderer.render(from, to))
     }
-    if(currentSectionRenderer) {
-      evs = evs.concat(currentSectionRenderer.render(from, to))
+    if(currentsectionRenderer) {
+      evs = evs.concat(currentsectionRenderer.render(from, to))
     }
     return evs
   }
 
   function changeSection(sectionName) {
-    currentSectionRenderer = sectionRenderers.get(sectionName)
+    currentsectionRenderer = sectionRenderers.get(sectionName)
   }
 
-  function getUnsectionedPartRenderers() {
+  function getUnsectionedpartRenderers() {
     // REFACTOR this is incomprehensible
     const sectionedPartNames = flatten(sections.map(
       sect => sect.strains.map(strn => strn.partName)
@@ -43,17 +40,15 @@ function Renderer(script) {
       .map(([, renderer]) => renderer)
   }
 
+  return { render, changeSection }
 }
 
-function SectionRenderer(section, allPartRenderers) {
-
+function sectionRenderer(section, allpartRenderers) {
   const strains = section.strains || []
   const partNames = strains.map(strain => strain.partName)
-  const partRenderers = Array.from(allPartRenderers)
+  const partRenderers = Array.from(allpartRenderers)
     .filter(([name, ]) => partNames.includes(name))
     .map(([, renderer]) => renderer)
-
-  return { render }
 
   function render(from, to) {
     let evs = []
@@ -63,15 +58,13 @@ function SectionRenderer(section, allPartRenderers) {
     return evs
   }
 
+  return { render }
 }
 
-function PartRenderer(part) {
-
+function partRenderer(part) {
   const phrases = part.phrases || []
-  const phraseRenderers = phrases.map(PhraseRenderer)
+  const phraseRenderers = phrases.map(phraseRenderer)
   setSourceForevs()
-
-  return { render }
 
   function render(from, to) {
     let evs = phraseRenderers[0].render(from, to)
@@ -89,16 +82,13 @@ function PartRenderer(part) {
     phrases.forEach(phr => phr.evs.forEach(ev => ev.source = part.name))
   }
 
+  return { render }
 }
 
-function PhraseRenderer(phrase) {
-
+function phraseRenderer(phrase) {
   const length = 4
 
-  return { render }
-
   // There's probably a cleverer/terser way of expressing this algorithm
-
   function render(from, to) {
     let evs = []
     let _from = from
@@ -124,6 +114,7 @@ function PhraseRenderer(phrase) {
     return destination
   }
 
+  return { render }
 }
 
-export default Renderer
+module.exports = renderer

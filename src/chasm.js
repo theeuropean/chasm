@@ -1,5 +1,3 @@
-module.exports = { loadChasmFiles, addPieceMethod, piece, play, stop }
-
 const { isString, isObject } = require('lodash')
 const glob = require('glob')
 const Piece = require('./piece')
@@ -57,3 +55,5 @@ function addPiece(name) {
   pieces.set(name, p)
   return p
 }
+
+module.exports = { loadChasmFiles, addPieceMethod, piece, play, stop }
